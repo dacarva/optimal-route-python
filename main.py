@@ -16,7 +16,7 @@ def get_express_trains(express_stations):
     return trains
 
 
-def bfs(adj, s, express_train=None):
+def bfs(adj, express_stations, s, express_train=None):
     if express_train:
         print('Express train', express_train)
 
@@ -43,6 +43,7 @@ def bfs(adj, s, express_train=None):
             if station not in distances:
                 parent[station] = ref_station
                 # Si es un tren expreso no sumar distancia + 1
+                distances[station] = distances[ref_station] + 1
 
                 if express_train == None or station not in express_stations:
                     distances[station] = distances[ref_station] + 1
@@ -58,21 +59,24 @@ def bfs(adj, s, express_train=None):
             elif distances[station] > distances[ref_station]:
                 distances[station] = distances[ref_station] + 1
                 parent[station] = ref_station
+            # print('Parent', parent)
+            # print('Distance', distances)
 
     return parent, distances
 
 
-def get_path(node_a, node_b, adj, express_train=None):
-    parent, distance = bfs(adj, node_a, express_train)
-    # print('parent', parent)
-    # print('distance', distance)
+def get_path(node_a, node_b, adj, express_stations, express_train=None):
+    parent, distance = bfs(adj, express_stations, node_a, express_train)
+    print('parent', parent)
+    print('distance', distance)
 
     node = node_b
     path = [node]
     # Viajar por los nodos encontrando la distancia más corta según sus padres
     while distance[node] > 0:
         node = parent[node]
-        path.append(node)
+        if node not in express_stations or express_train not in express_stations[node]:
+            path.append(node)
 
     return path
 
@@ -121,4 +125,4 @@ if __name__ == '__main__':
             wantExpress = None
 
     print('El camino óptimo es: ', get_path(
-        node_a, node_b, train_adj, express_train))
+        node_a, node_b, train_adj, express_stations, express_train))
